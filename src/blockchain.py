@@ -1,4 +1,5 @@
 from lib.block import Block
+import random
 
 #PARAMS
 difficulty = 3
@@ -39,7 +40,21 @@ class BlockChainClient:
         if len(self.mempool) >= 10:
             print(f"Starting mining process on {self.name}")
 
-            #create a new block, figure out the nonce and transmit it.
-            
+            #create a new block, look at the first (difficulty) characters, 
+            # if they aren't all zeros generate a new nonce and check again
+            # transmit it.
+
+            newBlock = Block() #create a new block
+            validHash = False #declare a validHash flag and set it to false
+            while validHash == False: #loop until we get a valid hash
+                validHash = True #set validHash to true for now
+                for i in range(difficulty): #look at the first (difficulty) characters in the hash
+                    if newBlock.hash[i] != 0: #if any of them aren't 0
+                        validHash = False #since hash is invalid, set validHash to False
+                        newBlock.nonce = random.randint(0,9223372036854775807) #generate a new nonse from 0 to int limit
+                        newBlock.calculateHash() #recalculate hash
+                        break #break since hash has changed
+                
+
             for i in self.peers:
                 i.recieveBlock(newBlock)
