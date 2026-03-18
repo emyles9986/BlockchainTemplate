@@ -18,7 +18,10 @@ class BlockChainClient:
         and append it to your mempool and also 'transmit' it to everyone elses mempool.
         '''
 
-        pass
+        amtStr = str(amt)
+        txn = fromAdd+toAdd+amt
+        
+        self.mempool.append(txn)
 
     def purgeMempool(self, block):
         '''
