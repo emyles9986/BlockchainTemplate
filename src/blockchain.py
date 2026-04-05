@@ -19,7 +19,7 @@ class BlockChainClient:
         '''
 
         amtStr = str(amt)
-        txn = fromAdd+toAdd+amt
+        txn = fromAdd+"."+toAdd+"."+amtStr
         
         self.mempool.append(txn)
 
