@@ -36,7 +36,28 @@ class BlockChainClient:
         The goal here is to verify that the block that this node recieved adheres to 
         the rules of the blockchain (i.e correctly calcukated nonce, right reward, etc.)
         '''
+        #validate that hash starts with (difficulty) zeros
+        #using the nonse gets the hash
+        #block.previous is the last in the chain
+        #index is what would be next in the chain
+        #transactions is one more than what was in the previous block
+        '''todo: validate transactions'''
+        #timestamp is after the timestamp of the previous block
 
+        previousBlock = self.chain[-1]
+        
+        for i in range(difficulty):
+            if block.hash[i] != 0:
+                return -1
+            
+        if (block.hash != block.calculateHash()) or (previousBlock.hash != block.previousHash) \
+            or (previousBlock.index != (block.index - 1)) or (previousBlock.timestamp >= block.timestamp):
+            return -1
+
+        
+
+            
+        
         pass
 
     def mine(self):
@@ -46,8 +67,9 @@ class BlockChainClient:
             #create a new block, look at the first (difficulty) characters, 
             # if they aren't all zeros generate a new nonce and check again
             # transmit it.
+            previousBlock = self.chain[-1]
 
-            newBlock = Block() #create a new block
+            newBlock = Block(previousBlock.index + 1, self.mempool, previousBlock.hash) #create a new block
             validHash = False #declare a validHash flag and set it to false
             while validHash == False: #loop until we get a valid hash
                 validHash = True #set validHash to true for now
@@ -55,7 +77,7 @@ class BlockChainClient:
                     if newBlock.hash[i] != 0: #if any of them aren't 0
                         validHash = False #since hash is invalid, set validHash to False
                         newBlock.nonce = random.randint(0,9223372036854775807) #generate a new nonse from 0 to int limit
-                        newBlock.calculateHash() #recalculate hash
+                        newBlock.hash = newBlock.calculateHash() #recalculate hash
                         break #break since hash has changed
                 
 
