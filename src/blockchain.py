@@ -28,8 +28,7 @@ class BlockChainClient:
         You may not need this, but once a block has been mined, you should remove all transactions
         in the block from the mempool.
         '''
-
-        pass
+        self.mempool=[]
 
     def recieveBlock(self, block: Block):
         '''
@@ -54,6 +53,8 @@ class BlockChainClient:
 
         #add the block to the chain
         self.chain.append(block)
+        self.purgeMempool
+        return 0
 
 
     def mine(self):
@@ -79,6 +80,5 @@ class BlockChainClient:
             #have each peer validate and add the block to their chain
             for i in self.peers:
                 i.recieveBlock(newBlock)
-
             #validate and add the block to the chain
             self.recieveBlock(newBlock)
