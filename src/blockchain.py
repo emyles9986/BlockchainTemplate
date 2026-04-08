@@ -28,8 +28,7 @@ class BlockChainClient:
         You may not need this, but once a block has been mined, you should remove all transactions
         in the block from the mempool.
         '''
-
-        pass
+        self.mempool=[]
 
     def recieveBlock(self, block: Block):
         '''
@@ -52,11 +51,7 @@ class BlockChainClient:
             
         if (block.hash != block.calculateHash()) or (previousBlock.hash != block.previousHash) \
             or (previousBlock.index != (block.index - 1)) or (previousBlock.timestamp >= block.timestamp):
-            return -1
-
-        
-
-            
+            return -1s
         
         pass
 
