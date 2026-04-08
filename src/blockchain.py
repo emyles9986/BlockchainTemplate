@@ -17,11 +17,14 @@ class BlockChainClient:
         this function should create a transaction (you can do this in plaintext for now)
         and append it to your mempool and also 'transmit' it to everyone elses mempool.
         '''
-
-        amtStr = str(amt)
-        txn = fromAdd+"."+toAdd+"."+amtStr
+        if amt > 0 : 
+            amtStr = str(amt)
+            txn = (fromAdd,toAdd, amtStr)
         
-        self.mempool.append(txn)
+            self.mempool.append(txn)
+
+        for peer in self.peers:
+            peer.mempool.append(txn)
 
     def purgeMempool(self, block):
         '''
@@ -53,7 +56,7 @@ class BlockChainClient:
 
         #add the block to the chain
         self.chain.append(block)
-        self.purgeMempool
+        self.purgeMempool(block)
         return 0
 
 
