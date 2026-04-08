@@ -78,3 +78,4 @@ class BlockChainClient:
 
             for i in self.peers:
                 i.recieveBlock(newBlock)
+                i.prugeMempool
