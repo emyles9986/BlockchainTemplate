@@ -1,5 +1,11 @@
+from email import message
+from inspect import signature
+
 from lib.block import Block
 import random
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 
 #PARAMS
 difficulty = 3
@@ -11,6 +17,8 @@ class BlockChainClient:
         self.peers = []
         self.mempool = [] #kinda lika a staging area for transactions before they are consolidated into a block
         self.chain = [Block(0, ["Genesis"], "0")]
+        self.userkeys_public = {}
+        self.userkeys_private = {}
     
     def transmitTxn(self, fromAdd, toAdd, amt):
         '''
@@ -19,7 +27,7 @@ class BlockChainClient:
         '''
         if amt > 0 : 
             amtStr = str(amt)
-            txn = (fromAdd,toAdd, amtStr)
+            txn = (fromAdd,toAdd,amtStr)
         
             self.mempool.append(txn)
 
@@ -53,7 +61,49 @@ class BlockChainClient:
             or (previousBlock.index != (block.index - 1)) or (previousBlock.timestamp >= block.timestamp):
             return -1
         
+        for txn in block.transactions:
+            user1 = txn[0]
+            user2 = txn[1]
+        
+            message = user1
+            signature = self.userkeys_private[user1].sign(
+                        message,
+                        padding.PSS(
+                            mgf=padding.MGF1(hashes.SHA256()),
+                            salt_length=padding.PSS.MAX_LENGTH
+                        ),
+                        hashes.SHA256()
+                        )
+            self.userkeys_public[user1].verify(
+                        signature,
+                        message,
+                        padding.PSS(
+                            mgf=padding.MGF1(hashes.SHA256()),
+                            salt_length=padding.PSS.MAX_LENGTH
+                        ),
+                        hashes.SHA256()
+                        )
+            
 
+            message = user2
+            signature = self.userkeys_private[user2].sign(
+                        message,
+                        padding.PSS(
+                            mgf=padding.MGF1(hashes.SHA256()),
+                            salt_length=padding.PSS.MAX_LENGTH
+                        ),
+                        hashes.SHA256()
+                        )
+            self.userkeys_public[user2].verify(
+                        signature,
+                        message,
+                        padding.PSS(
+                            mgf=padding.MGF1(hashes.SHA256()),
+                            salt_length=padding.PSS.MAX_LENGTH
+                        ),
+                        hashes.SHA256()
+                        )
+        
         #add the block to the chain
         self.chain.append(block)
         self.purgeMempool(block)
@@ -85,3 +135,12 @@ class BlockChainClient:
                 i.recieveBlock(newBlock)
             #validate and add the block to the chain
             self.recieveBlock(newBlock)
+
+    def create_new_user (self, username):
+        private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048,
+        )
+        public_key = private_key.public_key()
+        self.userkeys_public[username] = public_key
+        self.userkeys_private[username] = private_key
